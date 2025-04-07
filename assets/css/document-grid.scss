@@ -1,6 +1,12 @@
 /*
-  To ensure this file is minified, comment the import in document.less, then save this file.
+  To ensure this file is minified, comment the import in document.scss, then save this file.
 */
+
+/* Used in documents to prevent the email from being visible to spambots */
+.cmplz-obfuscate span {
+	display: none;
+}
+
 #cmplz-manage-consent-container {
   display:none;
 }
