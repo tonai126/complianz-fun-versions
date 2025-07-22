@@ -1,61 +1,82 @@
 <?php
- defined( 'ABSPATH' ) or die( "you do not have access to this page!" );
- 
- 
- /**
-  * Set analytics as suggested statistics tool in the wizard (pre-checked)
-  */
- 
-  function cmplz_funnelkit_set_default( $value, $fieldname, $field ) {
-     if ( $fieldname === 'compile_statistics' ) {
-         return "google-analytics";
-     }
-     return $value;
- }
- add_filter( 'cmplz_default_value', 'cmplz_funnelkit_set_default', 20, 3 );
- 
- 
- 
- add_filter( 'cmplz_known_script_tags', 'cmplz_funnelkit_script' );
- function cmplz_funnelkit_script( $tags ) {
-     // $tags[] = '';
-     $tags[] = array(
-         'name' => 'funnelkit',
-         'category' => 'statistics',
-         'urls' => array(
-             'tracks.min.js',
-         ),
-     );
-     return $tags;
- }
- 
+/**
+ * FunnelKit integration for Complianz.
+ *
+ * This file customizes Complianz behavior for FunnelKit, including default statistics tool selection,
+ * script detection, notices, social media detection, and field filtering.
+ *
+ * @package ComplianzIntegrations
+ */
+
+defined( 'ABSPATH' ) || die( 'you do not have access to this page!' );
 
 /**
- * Add notice to tell a user to choose Analytics
+ * Set analytics as suggested statistics tool in the wizard (pre-checked).
  *
- * @param $notices
+ * @param mixed  $value     The current value.
+ * @param string $fieldname The field name.
+ * @param mixed  $field     The field array. Unused.
+ *
+ * @noinspection PhpUnusedParameterInspection $field is required by filter signature but not used.
+ *
+ * @return mixed
+ */
+function cmplz_funnelkit_set_default( $value, $fieldname, $field ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+	if ( 'compile_statistics' === $fieldname ) {
+		return 'google-analytics';
+	}
+	return $value;
+}
+add_filter( 'cmplz_default_value', 'cmplz_funnelkit_set_default', 20, 3 );
+
+/**
+ * Add FunnelKit script to known script tags.
+ *
+ * @param array $tags The current script tags.
+ *
  * @return array
  */
-function cmplz_funnelkit_compile_statistics_notice($notices) {
-	$text = '';
+function cmplz_funnelkit_script( $tags ) {
+	$tags[] = array(
+		'name'     => 'funnelkit',
+		'category' => 'statistics',
+		'urls'     => array(
+			'tracks.min.js',
+		),
+	);
+	return $tags;
+}
+add_filter( 'cmplz_known_script_tags', 'cmplz_funnelkit_script' );
+
+/**
+ * Add notice to tell a user to choose Analytics.
+ *
+ * @param array $notices The current notices.
+ *
+ * @return array
+ */
+function cmplz_funnelkit_compile_statistics_notice( $notices ) {
+	$text      = '';
 	$found_key = false;
-	//find notice with field_id 'compile_statistics' and replace it with our own
-	foreach ($notices as $key=>$notice) {
-		if ($notice['field_id']==='compile_statistics') {
+	// Find notice with field_id 'compile_statistics' and replace it with our own.
+	foreach ( $notices as $key => $notice ) {
+		if ( isset( $notice['field_id'] ) && 'compile_statistics' === $notice['field_id'] ) {
 			$found_key = $key;
 		}
 	}
-
-	$notice = [
+	// translators: %s: FunnelKit.
+	$notice = array(
 		'field_id' => 'compile_statistics',
 		'label'    => 'default',
-		'title'    => __( "Statistics plugin detected", 'complianz-gdpr' ),
-		'text'     => cmplz_sprintf( __( "You use %s, which means the answer to this question should be Google Analytics.", 'complianz-gdpr' ), 'FunnelKit' )
-		              .' '.$text,
-	];
+		// translators: %s: FunnelKit.
+		'title'    => __( 'Statistics plugin detected', 'complianz-gdpr' ),
+		// translators: %s: FunnelKit.
+		'text'     => cmplz_sprintf( __( 'You use %s, which means the answer to this question should be Google Analytics.', 'complianz-gdpr' ), 'FunnelKit' )
+					. ' ' . $text,
+	);
 
-	if ($found_key){
-		$notices[$found_key] = $notice;
+	if ( false !== $found_key ) {
+		$notices[ $found_key ] = $notice;
 	} else {
 		$notices[] = $notice;
 	}
@@ -63,58 +84,59 @@ function cmplz_funnelkit_compile_statistics_notice($notices) {
 }
 add_filter( 'cmplz_field_notices', 'cmplz_funnelkit_compile_statistics_notice' );
 
+/**
+ * Add social media to the list of detected items, so it will get set as default, and will be added to the notice about it.
+ *
+ * @param array $social_media The current detected social media.
+ *
+ * @return array
+ */
+function cmplz_funnelkit_detected_social_media( $social_media ) {
+	if ( ! in_array( 'facebook', $social_media, true ) ) {
+		$social_media[] = 'facebook';
+	}
+	if ( ! in_array( 'tiktok', $social_media, true ) ) {
+		$social_media[] = 'tiktok';
+	}
+	if ( ! in_array( 'pinterest', $social_media, true ) ) {
+		$social_media[] = 'pinterest';
+	}
+	if ( ! in_array( 'snapchat', $social_media, true ) ) {
+		$social_media[] = 'snapchat';
+	}
+	return $social_media;
+}
+add_filter( 'cmplz_detected_social_media', 'cmplz_funnelkit_detected_social_media' );
 
- /**
-  * Add social media to the list of detected items, so it will get set as default, and will be added to the notice about it
-  *
-  * @param $social_media
-  *
-  * @return array
-  */
- function cmplz_funnelkit_detected_social_media( $social_media ) {
- 
-     if ( ! in_array( 'facebook', $social_media ) ) {
-         $social_media[] = 'facebook';
-     }
-     if ( ! in_array( 'tiktok', $social_media ) ) {
-         $social_media[] = 'tiktok';
-     }
-     if ( ! in_array( 'pinterest', $social_media ) ) {
-         $social_media[] = 'pinterest';
-     }
-     if(! in_array( 'snapchat', $social_media) ) {
-         $social_media[] = 'snapchat';
-     }
-     return $social_media;
- }
- add_filter( 'cmplz_detected_social_media', 'cmplz_funnelkit_detected_social_media' );
- 
- 
- /**
-  * nascondo i campi in google analytics
-  */
- 
- function cmplz_funnelkit_filter_fields( $fields ) {
-     $index = cmplz_get_field_index('compile_statistics_more_info', $fields);
-     if ( $index!==false ) {
-         unset($fields[$index]['help']);
-     }
- 
-     return cmplz_remove_field( $fields,
-         [
-             'configuration_by_complianz',
-             'ua_code',
-             'aw_code',
-             'additional_gtags_stats',
-             'additional_gtags_marketing',
-             'consent-mode',
-             'gtag-basic-consent-mode',
-             'cmplz-gtag-urlpassthrough',
-             'cmplz-gtag-ads_data_redaction',
-             'gtm_code',
-             'cmplz-tm-template',
-             'gtm_code_head'
-         ]);
- }
- 
- add_filter( 'cmplz_fields', 'cmplz_funnelkit_filter_fields', 2000, 1 );
+/**
+ * Hide specific fields in Google Analytics settings.
+ *
+ * @param array $fields The fields array.
+ *
+ * @return array
+ */
+function cmplz_funnelkit_filter_fields( $fields ) {
+	$index = cmplz_get_field_index( 'compile_statistics_more_info', $fields );
+	if ( false !== $index ) {
+		unset( $fields[ $index ]['help'] );
+	}
+
+	return cmplz_remove_field(
+		$fields,
+		array(
+			'configuration_by_complianz',
+			'ua_code',
+			'aw_code',
+			'additional_gtags_stats',
+			'additional_gtags_marketing',
+			'consent-mode',
+			'gtag-basic-consent-mode',
+			'cmplz-gtag-urlpassthrough',
+			'cmplz-gtag-ads_data_redaction',
+			'gtm_code',
+			'cmplz-tm-template',
+			'gtm_code_head',
+		)
+	);
+}
+add_filter( 'cmplz_fields', 'cmplz_funnelkit_filter_fields', 2000, 1 );
