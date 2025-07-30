@@ -41,7 +41,12 @@ function cmplz_funnelkit_script( $tags ) {
 		'name'     => 'funnelkit',
 		'category' => 'statistics',
 		'urls'     => array(
-			'tracks.min.js',
+			'tracks.min.js', // site wide tracking
+			'native-tracks.min.js', // basic and pro, site-wide tracking
+			'/plugins/funnel-builder/modules/optins/modules/optin-pages/assets/js/public.min.js', //FunnelKit Pages (Sales, Optin, OptinConfirmation, Upsells, Thank You Pages)
+			'/plugins/funnel-builder/modules/checkouts/assets/js/public.min.js', // FunnelKit Checkout Pages
+			'/plugins/funnel-builder-basic/modules/checkout/assets/js/public.min.js', // FunnelKit Checkout Pages - BASIC
+			'/plugins/funnel-builder-pro/modules/checkout/assets/js/public.min.js', // FunnelKit Checkout Pages - PRO
 		),
 	);
 	return $tags;
