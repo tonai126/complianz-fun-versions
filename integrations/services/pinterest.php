@@ -9,6 +9,8 @@ function cmplz_pinterest_script( $tags ) {
 		'urls' => array(
 			'assets.pinterest.com',
 			'pinmarklet.js',
+			'pinterest.com',
+			's.pinimg.com', //tracking url
 		),
 	);
 	return $tags;
