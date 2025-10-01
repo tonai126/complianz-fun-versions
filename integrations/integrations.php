@@ -587,6 +587,11 @@ $cmplz_integrations_list = apply_filters( 'cmplz_integrations', array(
 		'label'                => 'Greenshift',
 		'firstparty_marketing' => false,
 	),
+	'pinterest-for-woocommerce' => array(
+		'constant_or_function' => 'PINTEREST_FOR_WOOCOMMERCE_PLUGIN_FILE',
+		'label'				   => 'Pinterest for WooCommerce',
+		'firstparty_marketing' => false,
+	),
 ) );
 
 
